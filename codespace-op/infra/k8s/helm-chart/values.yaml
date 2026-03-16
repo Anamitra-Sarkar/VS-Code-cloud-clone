@@ -1,0 +1,129 @@
+# Default values for codespace-op Helm chart
+
+replicaCount:
+  backend: 2
+  frontend: 2
+
+image:
+  backend:
+    repository: ghcr.io/your-org/codespace-op-backend
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  frontend:
+    repository: ghcr.io/your-org/codespace-op-frontend
+    tag: "latest"
+    pullPolicy: IfNotPresent
+
+# --- MongoDB ---
+mongodb:
+  enabled: true
+  url: "mongodb://mongodb:27017"
+  dbName: codespace_op
+  auth:
+    rootUser: admin
+    rootPassword: changeme
+  storage:
+    size: 10Gi
+    storageClass: ""
+
+# --- Redis ---
+redis:
+  enabled: true
+  password: changeme
+
+# --- MinIO ---
+minio:
+  enabled: true
+  accessKey: minioadmin
+  secretKey: minioadmin
+  bucket: workspaces
+  storage:
+    size: 20Gi
+    storageClass: ""
+
+# --- Firebase ---
+firebase:
+  projectId: your-project-id
+  credentialsBase64: ""
+  apiKey: ""
+  authDomain: ""
+  storageBucket: ""
+  messagingSenderId: ""
+  appId: ""
+
+# --- LLM Providers ---
+llm:
+  defaultProvider: openai
+  defaultModel: gpt-4o-mini
+  openaiApiKey: ""
+  anthropicApiKey: ""
+  googleAiApiKey: ""
+
+# --- Backend ---
+backend:
+  port: 7860
+  logLevel: info
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+# --- Frontend ---
+frontend:
+  port: 3000
+  apiUrl: "http://backend:7860"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# --- Workspace containers ---
+workspace:
+  memoryLimit: 512m
+  cpuLimit: "1.0"
+  timeoutMinutes: 120
+
+# --- Autoscaling ---
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# --- Ingress ---
+ingress:
+  enabled: true
+  className: nginx
+  host: codespace-op.example.com
+  tls:
+    enabled: false
+    secretName: codespace-op-tls
+
+# --- Monitoring ---
+monitoring:
+  enabled: true
+  prometheus:
+    scrapeInterval: 15s
+  grafana:
+    enabled: true
+
+# --- Service account ---
+serviceAccount:
+  create: true
+  name: ""
+
+# --- Pod disruption budget ---
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+# --- Network policy ---
+networkPolicy:
+  enabled: true

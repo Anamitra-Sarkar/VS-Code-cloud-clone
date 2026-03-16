@@ -1,0 +1,66 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: latest
+
+      - name: Set kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.13.0
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install codespace-op \
+            codespace-op/infra/k8s/helm-chart \
+            --namespace codespace-op \
+            --create-namespace \
+            --set image.backend.tag=${{ github.sha }} \
+            --set image.frontend.tag=${{ github.sha }} \
+            --set mongodb.auth.rootPassword=${{ secrets.MONGODB_PASSWORD }} \
+            --set redis.password=${{ secrets.REDIS_PASSWORD }} \
+            --set minio.accessKey=${{ secrets.MINIO_ACCESS_KEY }} \
+            --set minio.secretKey=${{ secrets.MINIO_SECRET_KEY }} \
+            --set firebase.credentialsBase64=${{ secrets.FIREBASE_CREDENTIALS_BASE64 }} \
+            --set firebase.projectId=${{ secrets.FIREBASE_PROJECT_ID }} \
+            --set llm.openaiApiKey=${{ secrets.OPENAI_API_KEY }} \
+            --wait --timeout 5m
+
+      - name: Verify deployment
+        run: |
+          kubectl rollout status deployment/codespace-op-backend -n codespace-op --timeout=300s
+          kubectl rollout status deployment/codespace-op-frontend -n codespace-op --timeout=300s
+
+  deploy-frontend-vercel:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: codespace-op/frontend
+          vercel-args: --prod
