@@ -62,10 +62,11 @@ def verify_firebase_token(token: str) -> dict:
     """
     try:
         decoded = firebase_auth.verify_id_token(token)
+        name = decoded.get("name") or decoded.get("email") or "Anonymous"
         return {
             "uid": decoded["uid"],
             "email": decoded.get("email", ""),
-            "name": decoded.get("name", decoded.get("email", "Anonymous")),
+            "name": name,
             "picture": decoded.get("picture", ""),
             "email_verified": decoded.get("email_verified", False),
         }

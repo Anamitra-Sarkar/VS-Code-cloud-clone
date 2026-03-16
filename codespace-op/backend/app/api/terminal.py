@@ -1,6 +1,7 @@
 """WebSocket terminal – interactive shell into workspace containers."""
 
 import asyncio
+import re
 from typing import Optional
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query, status
@@ -11,6 +12,9 @@ from app.core.mongodb import get_database
 from app.core.docker_runner import exec_in_container
 
 router = APIRouter(prefix="/terminal", tags=["terminal"])
+
+# Block dangerous shell metacharacters while allowing normal commands
+_BLOCKED_CHARS_RE = re.compile(r"[`$]|\.\.")
 
 
 async def _validate_ws_access(token: str, workspace_id: str) -> Optional[dict]:
@@ -63,6 +67,9 @@ async def terminal_ws(
                 continue
 
             try:
+                if _BLOCKED_CHARS_RE.search(command):
+                    await websocket.send_text("Error: command contains disallowed characters\r\n$ ")
+                    continue
                 # Run the command inside the container in a thread to avoid blocking
                 loop = asyncio.get_event_loop()
                 output = await loop.run_in_executor(

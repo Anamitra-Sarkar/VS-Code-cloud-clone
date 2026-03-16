@@ -10,7 +10,7 @@ _client: Optional[docker.DockerClient] = None
 
 
 def _get_client() -> docker.DockerClient:
-    """Lazy-initialise the Docker client."""
+    """Lazy-initialize the Docker client."""
     global _client
     if _client is None:
         _client = docker.from_env()

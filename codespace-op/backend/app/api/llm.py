@@ -1,6 +1,7 @@
 """LLM completion and agentic AI endpoints with SSE streaming."""
 
 import json
+import re
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -19,6 +20,8 @@ from app.schemas.schemas import (
 )
 
 router = APIRouter(prefix="/llm", tags=["llm"])
+
+_SAFE_PATH_RE = re.compile(r"^[a-zA-Z0-9_\-./]+$")
 
 
 @router.post("/completions")
@@ -64,7 +67,7 @@ async def agent(body: AgentRequest, user: dict = Depends(get_current_user)):
                 "workspace_id": body.workspace_id,
                 "user_id": user["uid"],
             })
-            if ws:
+            if ws and body.file_path and _SAFE_PATH_RE.match(body.file_path) and ".." not in body.file_path:
                 file_content = exec_in_container(ws["container_name"], f"cat {body.file_path}")
                 full_prompt += f"\n\nFile ({body.file_path}):\n```\n{file_content}\n```"
         except Exception as exc:
