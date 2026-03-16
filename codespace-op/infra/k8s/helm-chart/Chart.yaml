@@ -1,0 +1,12 @@
+apiVersion: v2
+name: codespace-op
+description: A Helm chart for Codespace-Op cloud IDE platform
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - cloud-ide
+  - code-server
+  - workspace
+maintainers:
+  - name: codespace-op

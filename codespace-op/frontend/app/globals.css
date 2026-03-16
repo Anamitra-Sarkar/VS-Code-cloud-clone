@@ -1,0 +1,174 @@
+@import '@xterm/xterm/css/xterm.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --vscode-bg: #1e1e1e;
+  --vscode-sidebar: #252526;
+  --vscode-editor: #1e1e1e;
+  --vscode-accent: #007acc;
+  --vscode-border: #3c3c3c;
+  --vscode-text: #cccccc;
+  --vscode-text-muted: #858585;
+  --vscode-input-bg: #3c3c3c;
+  --vscode-status-bar: #007acc;
+  --vscode-activity-bar: #333333;
+  --vscode-tab-active: #1e1e1e;
+  --vscode-tab-inactive: #2d2d2d;
+  --vscode-selection: #264f78;
+  --vscode-menu-bg: #2d2d2d;
+  --vscode-menu-hover: #094771;
+}
+
+@layer base {
+  body {
+    @apply bg-vscode-bg text-vscode-text antialiased;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #424242;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555555;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Monaco editor overrides */
+.monaco-editor .margin,
+.monaco-editor .monaco-editor-background {
+  background-color: var(--vscode-editor) !important;
+}
+
+/* Terminal styles */
+.xterm {
+  padding: 4px 8px;
+}
+
+.xterm-viewport::-webkit-scrollbar {
+  width: 8px;
+}
+
+.xterm-viewport::-webkit-scrollbar-thumb {
+  background: #424242;
+  border-radius: 4px;
+}
+
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(135deg, #007acc 0%, #4ec9b0 50%, #c586c0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Animated gradient background */
+.animated-gradient {
+  background: linear-gradient(-45deg, #0d1117, #161b22, #1a1a2e, #16213e, #0d1117);
+  background-size: 300% 300%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Glass morphism */
+.glass {
+  background: rgba(30, 30, 30, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Code block styling */
+.code-block pre {
+  background: #1e1e1e !important;
+  border-radius: 8px;
+  padding: 16px;
+  overflow-x: auto;
+  border: 1px solid #3c3c3c;
+}
+
+.code-block code {
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Resizer handle */
+.resizer {
+  @apply relative z-10;
+}
+
+.resizer::after {
+  content: '';
+  @apply absolute inset-0 transition-colors duration-200;
+}
+
+.resizer:hover::after {
+  background: var(--vscode-accent);
+}
+
+/* Smooth transitions */
+* {
+  scrollbar-color: #424242 transparent;
+}
+
+/* Selection */
+::selection {
+  background: var(--vscode-selection);
+  color: #ffffff;
+}
+
+/* Focus styles */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 1px solid var(--vscode-accent);
+  outline-offset: -1px;
+}
+
+/* AI Sidebar message animation */
+@keyframes messageSlide {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ai-message {
+  animation: messageSlide 0.3s ease-out;
+}
+
+/* Landing page glow effects */
+.glow-blue {
+  box-shadow: 0 0 60px rgba(0, 122, 204, 0.3), 0 0 120px rgba(0, 122, 204, 0.1);
+}
+
+.glow-green {
+  box-shadow: 0 0 60px rgba(78, 201, 176, 0.3), 0 0 120px rgba(78, 201, 176, 0.1);
+}

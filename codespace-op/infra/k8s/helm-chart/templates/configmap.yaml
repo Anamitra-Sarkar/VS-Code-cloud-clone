@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+data:
+  BACKEND_PORT: {{ .Values.backend.port | quote }}
+  LOG_LEVEL: {{ .Values.backend.logLevel | quote }}
+  MONGODB_DB_NAME: {{ .Values.mongodb.dbName | quote }}
+  MINIO_BUCKET: {{ .Values.minio.bucket | quote }}
+  MINIO_ENDPOINT: "{{ .Release.Name }}-minio:9000"
+  MINIO_USE_SSL: "false"
+  REDIS_URL: "redis://:{{ .Values.redis.password }}@{{ .Release.Name }}-redis:6379/0"
+  FIREBASE_PROJECT_ID: {{ .Values.firebase.projectId | quote }}
+  NEXT_PUBLIC_FIREBASE_API_KEY: {{ .Values.firebase.apiKey | quote }}
+  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: {{ .Values.firebase.authDomain | quote }}
+  NEXT_PUBLIC_FIREBASE_PROJECT_ID: {{ .Values.firebase.projectId | quote }}
+  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: {{ .Values.firebase.storageBucket | quote }}
+  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: {{ .Values.firebase.messagingSenderId | quote }}
+  NEXT_PUBLIC_FIREBASE_APP_ID: {{ .Values.firebase.appId | quote }}
+  NEXT_PUBLIC_API_URL: {{ .Values.frontend.apiUrl | quote }}
+  LLM_DEFAULT_PROVIDER: {{ .Values.llm.defaultProvider | quote }}
+  LLM_DEFAULT_MODEL: {{ .Values.llm.defaultModel | quote }}
+  WORKSPACE_MEMORY_LIMIT: {{ .Values.workspace.memoryLimit | quote }}
+  WORKSPACE_CPU_LIMIT: {{ .Values.workspace.cpuLimit | quote }}
+  WORKSPACE_TIMEOUT_MINUTES: {{ .Values.workspace.timeoutMinutes | quote }}

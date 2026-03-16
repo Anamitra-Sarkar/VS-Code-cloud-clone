@@ -1,0 +1,77 @@
+name: Sync to HuggingFace Space
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - "codespace-op/backend/**"
+
+jobs:
+  hf-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install huggingface_hub CLI
+        run: pip install huggingface_hub
+
+      - name: Push backend to HuggingFace Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          # Configure git for HF push
+          git config --global user.email "ci@codespace-op.dev"
+          git config --global user.name "Codespace-Op CI"
+
+          # Create a temporary directory for the HF Space content
+          TMPDIR=$(mktemp -d)
+
+          # Copy backend files
+          cp -r codespace-op/backend/* "$TMPDIR/"
+
+          # Ensure Dockerfile exists for Docker Space
+          if [ ! -f "$TMPDIR/Dockerfile" ]; then
+            echo "Error: No Dockerfile found in backend directory"
+            exit 1
+          fi
+
+          # Create HF Space README metadata if not present
+          if [ ! -f "$TMPDIR/README.md" ]; then
+            cat > "$TMPDIR/README.md" << 'HFREADME'
+          ---
+          title: Codespace-Op Backend
+          emoji: 🚀
+          colorFrom: blue
+          colorTo: purple
+          sdk: docker
+          app_port: 7860
+          pinned: false
+          ---
+
+          # Codespace-Op Backend
+
+          Cloud IDE backend API powered by FastAPI.
+          HFREADME
+          fi
+
+          # Use huggingface-cli to upload
+          huggingface-cli upload \
+            "${{ vars.HF_SPACE_NAME || 'codespace-op/backend' }}" \
+            "$TMPDIR" \
+            . \
+            --repo-type space \
+            --token "$HF_TOKEN"
+
+          # Cleanup
+          rm -rf "$TMPDIR"
+
+          echo "Successfully synced backend to HuggingFace Space"
